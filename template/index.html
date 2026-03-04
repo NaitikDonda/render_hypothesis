@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Sample T-Test Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input:hover, select:hover {
+            border-color: #764ba2;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .info-text i {
+            color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            margin-top: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .results-header h2 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .results-content {
+            background-color: #f8f9fa;
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-value.small {
+            font-size: 20px;
+        }
+
+        .result-details {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-row .label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .result-row .value {
+            color: #333;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+        }
+
+        .conclusion {
+            text-align: center;
+            padding: 25px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .conclusion.reject {
+            background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(201, 42, 42, 0.3);
+        }
+
+        .conclusion.fail-reject {
+            background: linear-gradient(135deg, #51cf66 0%, #2b8e3c 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(43, 142, 60, 0.3);
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .example-data {
+            background: #e8f4fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .example-data h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .example-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .example-btn {
+            background: white;
+            border: 2px solid #2196f3;
+            color: #1976d2;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 One-Sample T-Test Calculator</h1>
+            <p>Statistical hypothesis testing made simple and beautiful</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="data">📈 Data (comma or space separated)</label>
+                    <input type="text" id="data" placeholder="e.g., 15, 27, 39, 46, 53, 68" value="15 27 39 46 53 68">
+                    <div class="info-text">
+                        <span>ℹ️ Enter numbers separated by commas or spaces</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mu">🎯 Hypothesized Mean (μ₀)</label>
+                    <input type="number" id="mu" step="any" value="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="alpha">📉 Significance Level (α)</label>
+                    <input type="number" id="alpha" step="0.01" min="0.01" max="0.5" value="0.05">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="alternative">🔄 Alternative Hypothesis</label>
+                    <select id="alternative">
+                        <option value="two-sided" selected>Two-sided (μ ≠ μ₀)</option>
+                        <option value="less">Less than (μ < μ₀)</option>
+                        <option value="greater">Greater than (μ > μ₀)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="example-data">
+                <h4>📋 Quick Examples</h4>
+                <div class="example-buttons">
+                    <button class="example-btn" onclick="setExample('default')">Default (15,27,39,46,53,68)</button>
+                    <button class="example-btn" onclick="setExample('small')">Small Sample (23,25,28,31)</button>
+                    <button class="example-btn" onclick="setExample('large')">Large Sample (45,47,49,51,53,55,57,59)</button>
+                </div>
+            </div>
+            
+            <button onclick="calculateTest()">
+                <span>🚀 Calculate T-Test</span>
+            </button>
+            
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 10px; color: #666;">Calculating...</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+            
+            <div class="results" id="results">
+                <div class="results-header">
+                    <h2>📊 Test Results</h2>
+                </div>
+                <div class="results-content" id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setExample(type) {
+            const dataInput = document.getElementById('data');
+            const muInput = document.getElementById('mu');
+            
+            switch(type) {
+                case 'default':
+                    dataInput.value = '15 27 39 46 53 68';
+                    muInput.value = '50';
+                    break;
+                case 'small':
+                    dataInput.value = '23, 25, 28, 31';
+                    muInput.value = '25';
+                    break;
+                case 'large':
+                    dataInput.value = '45,47,49,51,53,55,57,59';
+                    muInput.value = '50';
+                    break;
+            }
+        }
+
+        async function calculateTest() {
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('data', document.getElementById('data').value);
+            formData.append('mu', document.getElementById('mu').value);
+            formData.append('alpha', document.getElementById('alpha').value);
+            formData.append('alternative', document.getElementById('alternative').value);
+            
+            try {
+                const response = await fetch('/test', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                if (response.ok) {
+                    displayResults(result);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                showError('An error occurred while processing your request');
+            }
+        }
+        
+        function displayResults(result) {
+            const resultsDiv = document.getElementById('results');
+            const resultContent = document.getElementById('resultContent');
+            
+            const isReject = result.conclusion === 'Reject H0';
+            const conclusionClass = isReject ? 'reject' : 'fail-reject';
+            const conclusionText = isReject ? '❌ Reject Null Hypothesis (H₀)' : '✅ Fail to Reject Null Hypothesis (H₀)';
+            
+            let criticalValuesHtml = '';
+            if (result.alternative === 'less') {
+                criticalValuesHtml = `
+                    <div class="result-row">
+                        <span class="label">Critical t-value:</span>
+                        <span class="value">${result.t_table_neg}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Rejection Region:</span>
+                        <span class="value">${result.rejection_region}</span>
+                    </div>
+                `;
+            } else if (result.alternative === 'greater') {
+                criticalValuesHtml = `
+                    <div class="result-row">
+                        <span class="label">Critical t-value:</span>
+                        <span class="value">${result.t_table_pos}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Rejection Region:</span>
+                        <span class="value">${result.rejection_region}</span>
+                    </div>
+                `;
+            } else {
+                criticalValuesHtml = `
+                    <div class="result-row">
+                        <span class="label">Lower Critical t-value:</span>
+                        <span class="value">${result.t_table_neg}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Upper Critical t-value:</span>
+                        <span class="value">${result.t_table_pos}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Rejection Region:</span>
+                        <span class="value">${result.rejection_region}</span>
+                    </div>
+                `;
+            }
+            
+            const html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Sample Size</div>
+                        <div class="stat-value">${result.n}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Sample Mean</div>
+                        <div class="stat-value">${result.mean}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Std Deviation</div>
+                        <div class="stat-value">${result.stdev}</div>
+                    </div>
+                </div>
+                
+                <div class="result-details">
+                    <div class="result-row">
+                        <span class="label">Degrees of Freedom (df):</span>
+                        <span class="value">${result.df}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Calculated t-statistic:</span>
+                        <span class="value">${result.t_calculated}</span>
+                    </div>
+                    ${criticalValuesHtml}
+                    <div class="result-row">
+                        <span class="label">P-value:</span>
+                        <span class="value">${result.p_value}</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Significance Level (α):</span>
+                        <span class="value">${result.alpha}</span>
+                    </div>
+                </div>
+                
+                <div class="conclusion ${conclusionClass}">
+                    ${conclusionText}
+                </div>
+            `;
+            
+            resultContent.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
