@@ -3,9 +3,11 @@ from scipy.stats import t
 import numpy as np
 from statistics import stdev
 import json
+import os
 
 app = Flask(__name__)
 
+# Your existing hypothesis_test_calculation function remains the same
 def hypothesis_test_calculation(X, alpha, mu, alternative):
     """
     Perform hypothesis test and return results as dictionary
@@ -102,5 +104,7 @@ def test():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# This is important for production - use the PORT environment variable
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
